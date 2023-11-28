@@ -42,4 +42,4 @@ jobs:
       run: terraform plan -out=tfplan
 
     - name: Apply Terraform
-      run: terraform destroy -auto-approve
+      run: terraform apply -auto-approve

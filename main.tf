@@ -112,8 +112,8 @@ resource "aws_instance" "ec2-instance" {
   instance_type = var.instance_type
   key_name = var.instance_keypair
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
-  subnet_id = ["${aws_subnet.private.id}"]
-  iam_instance_profile = ["${aws_iam_role.cloudwatch.name}"]
+  subnet_id             = aws_subnet.private.id
+  iam_instance_profile  = aws_iam_role.cloudwatch.name
   user_data = file("${path.module}/cloudwatch-userdata.tpl")
   tags = {
     "Name" = var.instance_name

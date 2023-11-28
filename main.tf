@@ -124,28 +124,29 @@ resource "aws_instance" "ec2-instance" {
     encrypted   = true
   } 
    
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mkdir -p ${var.efs_share_path_instance_1}",
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
-      "sudo apt-get install -y docker-compose",
-      "sudo systemctl enable docker",
-      "sudo systemctl start docker",
-      "sudo mkdir -p ${var.efs_share_path_instance_1}",
-      "sleep 60",
-      "echo '${aws_efs_file_system.efs.dns_name}:/ ${var.efs_share_path_instance_1} nfs4 defaults,_netdev 0 0' | sudo tee -a /etc/fstab",
-      "sudo mount -a",
-    ]
+provisioner "remote-exec" {
+  inline = [
+    "sudo mkdir -p ${var.efs_share_path_instance_1}",
+    "sudo apt-get update",
+    "sudo apt-get install -y docker.io",
+    "sudo apt-get install -y docker-compose",
+    "sudo systemctl enable docker",
+    "sudo systemctl start docker",
+    "sudo mkdir -p ${var.efs_share_path_instance_1}",
+    "sleep 60",
+    "echo '${aws_efs_file_system.efs.dns_name}:/ ${var.efs_share_path_instance_1} nfs4 defaults,_netdev 0 0' | sudo tee -a /etc/fstab",
+    "sudo mount -a",
+  ]
 
-    connection {
-        type        = "ssh"
-        user        = "ubuntu"
-        private_key = "${var.private_key}"  # Using the private key from GitHub Secrets
-        host        = self.public_ip
-    }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = var.private_key
+    host        = self.public_ip
   }
 }
+
+
 
 #security group for ec2 instance
 resource "aws_security_group" "ec2-sec" {

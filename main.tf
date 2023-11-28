@@ -126,16 +126,7 @@ resource "aws_instance" "ec2-instance" {
    
 provisioner "remote-exec" {
   inline = [
-    "sudo mkdir -p ${var.efs_share_path_instance_1}",
-    "sudo apt-get update",
-    "sudo apt-get install -y docker.io",
-    "sudo apt-get install -y docker-compose",
-    "sudo systemctl enable docker",
-    "sudo systemctl start docker",
-    "sudo mkdir -p ${var.efs_share_path_instance_1}",
-    "sleep 60",
-    "echo '${aws_efs_file_system.efs.dns_name}:/ ${var.efs_share_path_instance_1} nfs4 defaults,_netdev 0 0' | sudo tee -a /etc/fstab",
-    "sudo mount -a",
+    "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
   ]
 
   connection {

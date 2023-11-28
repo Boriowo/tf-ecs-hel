@@ -42,3 +42,9 @@ variable "diskvolume" {
     type = string
     default = "1024"
 }
+
+variable "email" {
+    description = "VPC ID"
+    type = string
+    default = "boriowo@ismiletechnologies.com"
+}

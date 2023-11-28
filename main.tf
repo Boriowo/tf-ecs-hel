@@ -100,11 +100,11 @@ resource "aws_security_group" "load_balancer_security_group" {
   }
 }
 
-  tags = {
+/*tags = {
     Name        = "${var.app_name}-${var.app_environment}-service-sg"
     Environment = "${var.app_environment}"
   }
-}
+}*/
 
 #EC2 Instance
 resource "aws_instance" "ec2-instance" {

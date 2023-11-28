@@ -22,7 +22,7 @@ variable "instance_type" {
 
 variable "private_key" {
     description = "Private key for SSH connection"
-    default     = ""
+    default     = "moses.pem"
 }
 
 variable "diskvolume" {

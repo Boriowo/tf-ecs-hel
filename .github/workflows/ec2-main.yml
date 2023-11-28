@@ -1,0 +1,45 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check_terraform_installed:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check Terraform installation
+      id: check_terraform
+      run: |
+        if command -v terraform &> /dev/null; then
+          echo "::set-output name=installed::true"
+        else
+          echo "::set-output name=installed::false"
+        fi
+  terraform_deploy:
+    needs: check_terraform_installed
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        private_key: ${{ secrets.PRIVATE_KEY }}
+
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Plan Terraform
+      run: terraform plan
+
+    - name: Apply Terraform
+      run: terraform apply -auto-approve

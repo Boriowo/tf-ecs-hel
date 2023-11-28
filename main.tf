@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket = "backend-storagetf"
+    dynamodb_table = "tf-state-lock-dynamo"
+    encrypt = false
+    key    = "path/path/terraform-tf-ec2-statefile"
+    region = "us-east-1"
+  }
+}
+
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -169,4 +179,120 @@ resource "aws_security_group" "ec2-sec" {
   tags = {
     Name = "${var.app_name}-${var.app_environment}-ec2-security-name"
   }
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatch" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:aws:iam::aws:policy/CloudWatchFullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM",
+
+  ])
+
+  role       = aws_iam_role.cloudwatch.name
+  policy_arn = each.value
+}
+
+resource "aws_iam_role" "cloudwatch" {
+  name = "${var.app_name}-${var.app_environment}-cloudwatch-main"
+  description = "EC2 IAM role for cloudwatch agent"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": ["ec2.amazonaws.com"]
+      },
+      "Effect": "Allow"
+    }
+  ]
+}
+   
+EOF
+}
+
+resource "aws_iam_instance_profile" "cloudwatch" {
+  role = aws_iam_role.cloudwatch.name
+  name = "${var.app_name}-${var.app_environment}-cloudwatch"
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_cpu" {
+     alarm_name                = "cpu-utilization"
+     comparison_operator       = "GreaterThanOrEqualToThreshold"
+     evaluation_periods        = "1"
+     metric_name               = "CPUUtilization"
+     namespace                 = "AWS/EC2"
+     period                    = "120" #seconds
+     statistic                 = "Average"
+     threshold                 = "60"
+     alarm_description         = "This metric monitors ec2 cpu utilization"
+     alarm_actions             = [aws_sns_topic.user_updates.arn]
+     insufficient_data_actions = []
+     treat_missing_data = "notBreaching"
+
+dimensions = {
+       InstanceId = aws_instance.ec2-instance.id
+     }
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_disk" {
+  alarm_name                = "disk-utilization"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "disk_used_percent"
+  namespace                 = "CWAgent"
+  #namespace                 = "AWS/EC2"
+  period                    = "120"
+  statistic                 = "Average"
+  threshold                 = "70"
+  alarm_description         = "This metric monitors ec2 disk utilization"
+  actions_enabled           = "true"
+  #alarm_actions             = ["arn:aws:sns:ap-south-1:269763233488:Default_CloudWatch_Alarms_Topic"]
+  insufficient_data_actions = []
+  alarm_actions             = [aws_sns_topic.user_updates.arn]
+  treat_missing_data = "notBreaching"
+
+   dimensions = {
+    path = "/"
+    InstanceId = aws_instance.ec2-instance.id
+    device = "xvda1"
+    fstype = "ext4"
+   
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_mem" {
+  alarm_name                = "memory-utilization"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  metric_name               = "mem_used_percent"
+  namespace                 = "CWAgent"
+  #namespace                 = "AWS/EC2"
+  period                    = "120"
+  statistic                 = "Average"
+  threshold                 = "60"
+  alarm_description         = "This metric monitors ec2 disk utilization"
+  actions_enabled           = "true"
+  #alarm_actions             = ["arn:aws:sns:ap-south-1:269763233488:Default_CloudWatch_Alarms_Topic"]
+  insufficient_data_actions = []
+  alarm_actions             = [aws_sns_topic.user_updates.arn]
+  treat_missing_data = "notBreaching"
+
+   dimensions = {
+    InstanceId = aws_instance.ec2-instance.id  
+  }
+
+}
+
+resource "aws_sns_topic" "user_updates" {
+  name = "${var.app_name}-${var.app_environment}-cloudwatch-sns"
+}
+
+resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
+  topic_arn = aws_sns_topic.user_updates.arn
+  protocol  = "email"
+  endpoint  = "${var.email}"
 }

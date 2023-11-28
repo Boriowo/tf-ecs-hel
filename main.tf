@@ -144,8 +144,8 @@ provisioner "remote-exec" {
     private_key = var.private_key
     host        = self.public_ip
   }
+ }
 }
-
 
 
 #security group for ec2 instance
@@ -174,6 +174,6 @@ resource "aws_security_group" "ec2-sec" {
 
   tags = {
     Name = "${var.app_name}-${var.app_environment}-ec2-security-name}"
-  }
-}
+  
+
 

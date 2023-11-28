@@ -86,26 +86,72 @@ resource "aws_security_group" "service_security_group" {
   }
 }
 
+#EC2 Instance
+resource "aws_instance" "ec2-instance" {
+  ami = "ami-08662cc7aed840314"
+  instance_type = var.instance_type
+  key_name = var.instance_keypair
+  vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
+  subnet_id = ["${aws_subnet.private.id}"]
+  iam_instance_profile = ["${aws_iam_role.cloudwatch.name}"]
+  user_data = file("${path.module}/cloudwatch-userdata.tpl")
+  tags = {
+    "Name" = var.instance_name
+  }
+   root_block_device {
+    volume_type = "gp2"
+    volume_size = "${var.diskvolume}"
+    encrypted   = true
+  } 
+   
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p ${var.efs_share_path_instance_1}",
+      "sudo apt-get update",
+      "sudo apt-get install -y docker.io",
+      "sudo apt-get install -y docker-compose",
+      "sudo systemctl enable docker",
+      "sudo systemctl start docker",
+      "sudo mkdir -p ${var.efs_share_path_instance_1}",
+      "sleep 60",
+      "echo '${aws_efs_file_system.efs.dns_name}:/ ${var.efs_share_path_instance_1} nfs4 defaults,_netdev 0 0' | sudo tee -a /etc/fstab",
+      "sudo mount -a",
+    ]
 
-resource "aws_network_interface" "foo" {
-  subnet_id   = aws_subnet.my_subnet.id
-  private_ips = ["172.16.10.100"]
+    connection {
+        type        = "ssh"
+        user        = "ubuntu"
+        private_key = "${var.private_key}"  # Using the private key from GitHub Secrets
+        host        = self.public_ip
+    }
+}
+
+#security group for ec2 instance
+resource "aws_security_group" "ec2-sec" {
+  name        = "${var.app_name}-${var.app_environment}-ec2-security-name}"
+  description = "created using terraform"
+  vpc_id      = "${aws_vpc.vpc.id}"
+
+  ingress {
+    description      = "All traffic"
+    from_port        = 0
+    to_port          = 0
+    protocol         = -1
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
   tags = {
-    Name = "primary_network_interface"
+    Name = "${var.app_name}-${var.app_environment}-ec2-security-name}"
   }
 }
 
-resource "aws_instance" "foo" {
-  ami           = "ami-005e54dee72cc1d00" # us-west-2
-  instance_type = "t2.micro"
-
-  network_interface {
-    network_interface_id = aws_network_interface.foo.id
-    device_index         = 0
-  }
-
-  credit_specification {
-    cpu_credits = "unlimited"
-  }
-}

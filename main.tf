@@ -124,6 +124,7 @@ resource "aws_instance" "ec2-instance" {
         private_key = "${var.private_key}"  # Using the private key from GitHub Secrets
         host        = self.public_ip
     }
+  }
 }
 
 #security group for ec2 instance

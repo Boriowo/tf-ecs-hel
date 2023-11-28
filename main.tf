@@ -62,7 +62,7 @@ resource "aws_route_table_association" "public" {
 }
 
 
-/*#Security Group for the vpc
+#Security Group for the vpc
 resource "aws_security_group" "service_security_group" {
   vpc_id = "${aws_vpc.vpc.id}"
 
@@ -79,10 +79,11 @@ resource "aws_security_group" "service_security_group" {
     protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
-  }*/
+  }
+}
 
-resource "aws_security_group" "load_balancer_security_group" {
-  name        = "load-balancer-sg"
+/*resource "aws_security_group" "load_balancer_security_group" {
+  name        = "${var.app_name}-${var.app_environment}-loadbalancersg"
   description = "Security group for the load balancer"
 
   ingress {
@@ -98,7 +99,7 @@ resource "aws_security_group" "load_balancer_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
+}*/
 
 /*tags = {
     Name        = "${var.app_name}-${var.app_environment}-service-sg"
@@ -150,7 +151,7 @@ provisioner "remote-exec" {
 
 #security group for ec2 instance
 resource "aws_security_group" "ec2-sec" {
-  name        = "${var.app_name}-${var.app_environment}-ec2-security-name}"
+  name        = "${var.app_name}-${var.app_environment}-ec2-security-name"
   description = "created using terraform"
   vpc_id      = "${aws_vpc.vpc.id}"
 
@@ -173,7 +174,6 @@ resource "aws_security_group" "ec2-sec" {
   }
 
   tags = {
-    Name = "${var.app_name}-${var.app_environment}-ec2-security-name}"
-  
-
-
+    Name = "${var.app_name}-${var.app_environment}-ec2-security-name"
+  }
+}

@@ -14,10 +14,22 @@ variable "app_environment" {
     default     = "dev"
 }
 
+variable "instance_name" {
+    description = "EC2 Instnace name"
+    type = string
+    default = "datahub-ec2"
+}
+
 variable "instance_type" {
     description = "EC2 Instnace Type"
     type = string
     default = "m5.large"
+}
+
+variable "instance_keypair" {
+    description = "EC2 Instnace key"
+    type = string
+    default = ""
 }
 
 variable "private_key" {

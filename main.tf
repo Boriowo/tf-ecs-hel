@@ -139,15 +139,14 @@ resource "aws_instance" "ec2-instance" {
     user        = "ubuntu"
     private_key = var.private_key
     host        = aws_instance.ec2-instance.public_ip
+    timeout     = "10m"  # Wait up to 10 minutes for the connection to become available
   }
   
   provisioner "remote-exec" {
     inline = [
     "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
   ]
-    depends_on = [
-    aws_instance.ec2-instance
-  ]
+
  }
 }
 data "aws_instance" "ec2-instance" {

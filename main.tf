@@ -116,23 +116,27 @@ resource "aws_security_group" "service_security_group" {
   }
 }*/
 
-#EC2 Instance
+# EC2 Instance
 resource "aws_instance" "ec2-instance" {
-  ami = "ami-08662cc7aed840314"
-  instance_type = var.instance_type
-  key_name = var.instance_keypair
+  ami                    = "ami-08662cc7aed840314"
+  instance_type          = var.instance_type
+  key_name               = var.instance_keypair
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
-  subnet_id             = aws_subnet.private.id
-  iam_instance_profile  = aws_iam_role.cloudwatch.name
+  subnet_id              = aws_subnet.private.id
+  iam_instance_profile   = aws_iam_role.cloudwatch.name
+
   tags = {
     "Name" = var.instance_name
   }
-   root_block_device {
+
+  root_block_device {
     volume_type = "gp2"
     volume_size = "${var.diskvolume}"
     encrypted   = true
-  } 
-   
+  }
+}
+
+# Remote Execution Provisioner
 provisioner "remote-exec" {
   inline = [
     "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
@@ -144,8 +148,9 @@ provisioner "remote-exec" {
     private_key = var.private_key
     host        = aws_instance.ec2-instance.public_ip
   }
- }
 }
+
+# Data Block
 data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id
 }

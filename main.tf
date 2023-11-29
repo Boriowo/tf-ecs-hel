@@ -116,39 +116,31 @@ resource "aws_security_group" "service_security_group" {
   }
 }*/
 
-#EC2 Instance
 resource "aws_instance" "ec2-instance" {
   ami = "ami-08662cc7aed840314"
   instance_type = var.instance_type
   key_name = var.instance_keypair
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
-  subnet_id             = aws_subnet.private.id
-  iam_instance_profile  = aws_iam_role.cloudwatch.name
-  associate_public_ip_address = true  # Add this line to assign a public IP
+  subnet_id = aws_subnet.private.id
+  iam_instance_profile = aws_iam_role.cloudwatch.name
+  associate_public_ip_address = true
   tags = {
     "Name" = var.instance_name
   }
-   root_block_device {
+  root_block_device {
     volume_type = "gp2"
     volume_size = "${var.diskvolume}"
-    encrypted   = true
-  } 
+    encrypted = true
+  }
   
   connection {
-    type        = "ssh"
-    user        = "ubuntu"
+    type = "ssh"
+    user = "ubuntu"
     private_key = var.private_key
-    host        = aws_instance.ec2-instance.public_ip
+    host = aws_instance.ec2-instance.public_ip
   }
-
   
-  /*provisioner "remote-exec" {
-    inline = [
-    "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
-  ]
-
- }*/
- // EC2 Instance Connect configuration
+  // EC2 Instance Connect configuration
   metadata_options {
     http_endpoint = "enabled"
     http_put_response_hop_limit = 1

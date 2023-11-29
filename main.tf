@@ -194,7 +194,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 }
 
 resource "aws_iam_role" "cloudwatch" {
-  name = "hel-cloudwatch"
+  name = "ec2-cloudwatch"
   description = "EC2 IAM role for cloudwatch agent"
   assume_role_policy = <<EOF
 {

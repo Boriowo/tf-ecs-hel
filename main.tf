@@ -124,7 +124,6 @@ resource "aws_instance" "ec2-instance" {
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
   subnet_id             = aws_subnet.private.id
   iam_instance_profile  = aws_iam_role.cloudwatch.name
-  #user_data = file("${path.module}/cloudwatch-userdata.tpl")
   tags = {
     "Name" = var.instance_name
   }
@@ -195,7 +194,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 }
 
 resource "aws_iam_role" "cloudwatch" {
-  name = "ec2-cloudwatch-main"
+  name = "hel-cloudwatch"
   description = "EC2 IAM role for cloudwatch agent"
   assume_role_policy = <<EOF
 {

@@ -36,4 +36,4 @@ jobs:
         run: terraform apply -auto-approve tfplan
 
       - name: output Terraform
-        run: terraform output -auto-approve tfplan
+        run: terraform output

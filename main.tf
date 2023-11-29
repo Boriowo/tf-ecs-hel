@@ -139,7 +139,7 @@ resource "aws_instance" "ec2-instance" {
     user        = "ubuntu"
     private_key = var.private_key
     host        = aws_instance.ec2-instance.public_ip
-    timeout     = "10m"  # Wait up to 10 minutes for the connection to become available
+    timeout     = "15m"  # Wait up to 10 minutes for the connection to become available
   }
   
   provisioner "remote-exec" {

@@ -20,11 +20,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Set up SSH key
-        run: |
-          echo "${{ secrets.PRIVATE_KEY }}" > moses.pem
-          chmod 600 moses.pem
-          ssh-keygen -y -f moses.pem > public_key.pem
+      #- name: Set up SSH key
+       # run: |
+        #  echo "${{ secrets.PRIVATE_KEY }}" > moses.pem
+         # chmod 600 moses.pem
+         # ssh-keygen -y -f moses.pem > public_key.pem
 
       - name: Initialize Terraform
         run: terraform init
@@ -34,3 +34,6 @@ jobs:
 
       - name: Apply Terraform
         run: terraform apply -auto-approve tfplan
+
+      - name: output Terraform
+        run: terraform output -auto-approve tfplan

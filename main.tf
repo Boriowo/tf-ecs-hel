@@ -139,8 +139,17 @@ resource "aws_instance" "ec2-instance" {
     user        = "ubuntu"
     private_key = var.private_key
     host        = aws_instance.ec2-instance.public_ip
-    timeout     = "20m"  # Wait up to 10 minutes for the connection to become available
   }
+
+resource "tls_private_key" "private_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+ 
+resource "aws_key_pair" "generated_key" {
+  key_name   = "ec2-key-pair"
+  public_key = tls_private_key.private_key.public_key_openssh
+}
   
   /*provisioner "remote-exec" {
     inline = [

@@ -216,7 +216,7 @@ EOF
 
 resource "aws_iam_instance_profile" "cloudwatch" {
   role = aws_iam_role.cloudwatch.name
-  name = "${var.app_name}cloudwatch"
+  name = "ec2-cloudwatch"
 }
 
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu" {

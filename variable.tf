@@ -34,7 +34,7 @@ variable "instance_keypair" {
 
 variable "private_key" {
     description = "Private key for SSH connection"
-    default     = "moses.pem"
+    default     = ""
 }
 
 variable "diskvolume" {

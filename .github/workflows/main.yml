@@ -32,8 +32,9 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
-        private_key: ${{ secrets.PRIVATE_KEY }}
-
+        
+    - name: Set private key
+      run: echo "${{ secrets.PRIVATE_KEY }}" > moses.pem
 
     - name: Initialize Terraform
       run: terraform init

@@ -144,6 +144,7 @@ provisioner "remote-exec" {
     private_key = var.private_key
     host        = aws_instance.ec2-instance.public_ip
   }
+ }
 }
 data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id

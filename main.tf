@@ -124,6 +124,10 @@ resource "aws_instance" "ec2-instance" {
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
   subnet_id             = aws_subnet.private.id
   iam_instance_profile  = aws_iam_role.cloudwatch.name
+  associate_public_ip_address = true  # Add this line to assign a public IP
+  tags = {
+    "Name" = var.instance_name
+  }
   tags = {
     "Name" = var.instance_name
   }

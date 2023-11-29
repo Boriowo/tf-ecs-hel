@@ -6,41 +6,31 @@ on:
       - master
 
 jobs:
-  check_terraform_installed:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check Terraform installation
-      id: check_terraform
-      run: |
-        if command -v terraform &> /dev/null; then
-          echo "::set-output name=installed::true"
-        else
-          echo "::set-output name=installed::false"
-        fi
-  terraform_deploy:
-    needs: check_terraform_installed
-    runs-on: ubuntu-latest
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-        
-    - name: Set private key
-      run: echo "${{ secrets.PRIVATE_KEY }}" > moses.pem
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.PRIVATE_KEY }}" > moses.pem
+          chmod 600 moses.pem
+          ssh-keygen -y -f moses.pem > public_key.pem
 
-    - name: Initialize Terraform
-      run: terraform init
+      - name: Initialize Terraform
+        run: terraform init
 
-    - name: Plan Terraform
-      run: terraform plan -out=tfplan
+      - name: Plan Terraform
+        run: terraform plan -out=tfplan
 
-    - name: Apply Terraform
-      run: terraform apply -auto-approve tfplan
+      - name: Apply Terraform
+        run: terraform apply -auto-approve tfplan

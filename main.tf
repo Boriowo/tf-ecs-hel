@@ -142,12 +142,12 @@ resource "aws_instance" "ec2-instance" {
     timeout     = "20m"  # Wait up to 10 minutes for the connection to become available
   }
   
-  provisioner "remote-exec" {
+  /*provisioner "remote-exec" {
     inline = [
     "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
   ]
 
- }
+ }*/
 }
 data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id

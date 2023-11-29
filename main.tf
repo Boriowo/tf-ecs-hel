@@ -96,10 +96,10 @@ resource "aws_security_group" "service_security_group" {
   description = "Security group for the load balancer"
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = -1
+    cidr_blocks      = ["0.0.0.0/0"]
   }
 
   egress {

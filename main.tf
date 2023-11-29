@@ -141,15 +141,6 @@ resource "aws_instance" "ec2-instance" {
     host        = aws_instance.ec2-instance.public_ip
   }
 
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
- 
-resource "aws_key_pair" "generated_key" {
-  key_name   = "ec2-key-pair"
-  public_key = tls_private_key.private_key.public_key_openssh
-}
   
   /*provisioner "remote-exec" {
     inline = [
@@ -162,6 +153,15 @@ data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id
 }
 
+resource "tls_private_key" "private_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+ 
+resource "aws_key_pair" "generated_key" {
+  key_name   = "ec2-key-pair"
+  public_key = tls_private_key.private_key.public_key_openssh
+}
 
 #security group for ec2 instance
 resource "aws_security_group" "ec2-sec" {

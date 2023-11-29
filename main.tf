@@ -116,36 +116,43 @@ resource "aws_security_group" "service_security_group" {
   }
 }*/
 
-#EC2 Instance
 resource "aws_instance" "ec2-instance" {
-  ami = "ami-08662cc7aed840314"
-  instance_type = var.instance_type
-  key_name = var.instance_keypair
+  ami                    = "ami-08662cc7aed840314"
+  instance_type          = var.instance_type
+  key_name               = var.instance_keypair
   vpc_security_group_ids = ["${aws_security_group.ec2-sec.id}"]
-  subnet_id             = aws_subnet.private.id
-  iam_instance_profile  = aws_iam_role.cloudwatch.name
+  subnet_id              = aws_subnet.private.id
+  iam_instance_profile   = aws_iam_role.cloudwatch.name
   tags = {
     "Name" = var.instance_name
   }
-   root_block_device {
+  root_block_device {
     volume_type = "gp2"
     volume_size = "${var.diskvolume}"
     encrypted   = true
-  } 
-  
+  }
+}
+
+# Null Resource for executing remote-exec provisioner
+resource "null_resource" "install_docker" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
     private_key = var.private_key
+    # Ensure to use the correct reference to the EC2 instance public IP
     host        = aws_instance.ec2-instance.public_ip
   }
-  
+
   provisioner "remote-exec" {
     inline = [
-    "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
+      "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
     ]
   }
+
+  # Dependency on the EC2 instance
+  depends_on = [aws_instance.ec2-instance]
 }
+
 data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id
 }

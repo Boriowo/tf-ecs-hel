@@ -148,6 +148,12 @@ resource "aws_instance" "ec2-instance" {
   ]
 
  }*/
+ // EC2 Instance Connect configuration
+  metadata_options {
+    http_endpoint = "enabled"
+    http_put_response_hop_limit = 1
+    http_tokens = "required"
+  }
 }
 data "aws_instance" "ec2-instance" {
   instance_id = aws_instance.ec2-instance.id

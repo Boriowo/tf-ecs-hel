@@ -35,5 +35,12 @@ jobs:
       - name: Apply Terraform
         run: terraform apply -auto-approve tfplan
 
+      - name: Save Private Key to Artifact
+        run: echo "${{ steps.<TERRAFORM_STEP_NAME>.outputs.private_key_pem }}" > private_key.pem
+      - uses: actions/upload-artifact@v2
+        with:
+          name: private-key-artifact
+          path: private_key.pem
+
       - name: output Terraform
         run: terraform output

@@ -135,15 +135,16 @@ resource "aws_instance" "ec2-instance" {
 
 # Null Resource for executing remote-exec provisioner
 resource "null_resource" "install_docker" {
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = var.private_key
-    # Ensure to use the correct reference to the EC2 instance public IP
-    host        = aws_instance.ec2-instance.public_ip
-  }
-
+  # Reference to the EC2 instance public IP
   provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = var.private_key
+      # Ensure to use the correct reference to the EC2 instance public IP
+      host        = aws_instance.ec2-instance.public_ip
+    }
+
     inline = [
       "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
     ]

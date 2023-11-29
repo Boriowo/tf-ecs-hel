@@ -145,6 +145,9 @@ resource "aws_instance" "ec2-instance" {
     inline = [
     "sudo apt-get update && sudo apt-get install -y docker.io docker-compose && sudo systemctl enable docker && sudo systemctl start docker"
   ]
+    depends_on = [
+    aws_instance.ec2-instance
+  ]
  }
 }
 data "aws_instance" "ec2-instance" {

@@ -27,7 +27,7 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve tfplan
+        run: terraform destroy -auto-approve 
 
       - name: Save Private Key to Artifact
         run: echo "${{ steps.terraform_outputs.outputs.private_key_pem }}" > private_key.pem
